@@ -50,21 +50,35 @@ def printMenu(menu):
             dishType = dish.type
         print(str(dish.dishId)+")", dish.name, "("+ dish.category +")", "-", dish.price)
 
+def printtext(e1):
+    text = e1.get() 
+    print(text)   
+
 def openNewWindow():
     # Toplevel object which will
     # be treated as a new window
     ws = tk.Toplevel()
+    ws.geometry("500x500")
+    ws.configure(background='#FBF8F1')
+    ws.title("Menu")
 
     game_frame = Frame(ws)
     game_frame.pack()
 
+    style = ttk.Style()
+    style.configure('Treeview',
+        background="#F7ECDE",
+        foreground="#54BAB9",
+        fieldbackground="#F7ECDE"
+
+    )
     my_game = ttk.Treeview(game_frame)
 
     my_game['columns'] = ('Id', 'Name', 'Type', 'Category', 'Price')
 
     my_game.column("#0", width=0,  stretch=NO)
     my_game.column("Id",anchor=CENTER, width=80)
-    my_game.column("Name",anchor=CENTER,width=80)
+    my_game.column("Name",anchor=CENTER,width=150)
     my_game.column("Type",anchor=CENTER,width=80)
     my_game.column("Category",anchor=CENTER,width=80)
     my_game.column("Price",anchor=CENTER,width=80)
@@ -83,6 +97,16 @@ def openNewWindow():
         my_game.insert(parent='',index='end',iid=dish.dishId,text='',
         values=(dish.dishId,dish.name,dish.type, dish.category, dish.price))
 
+
+    Label(ws,
+          text ="Choose id of dishes:",
+          fg="#54BAB9",
+          bg="#FBF8F1",
+        ).pack()
+
+    e1 = Entry(ws)
+    e1.pack()
+    Button(ws, text='Show', command=printtext(e1)).pack()
 
     my_game.pack()
 
