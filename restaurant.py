@@ -49,14 +49,12 @@ def printMenu(menu):
             print("#"*10, dish.type, "#"*10)
             dishType = dish.type
         print(str(dish.dishId)+")", dish.name, "("+ dish.category +")", "-", dish.price)
-
-def printtext(e1):
-    text = e1.get() 
-    print(text)   
+ 
 
 def openNewWindow():
     # Toplevel object which will
     # be treated as a new window
+    order = [] # list of all dishes which customer chooses
     ws = tk.Toplevel()
     ws.geometry("500x500")
     ws.configure(background='#FBF8F1')
@@ -97,6 +95,26 @@ def openNewWindow():
         my_game.insert(parent='',index='end',iid=dish.dishId,text='',
         values=(dish.dishId,dish.name,dish.type, dish.category, dish.price))
 
+    profit = tk.IntVar()
+    def printtext():
+        added = 0
+        name = ""
+        for dish in menu:
+            if(dish.dishId == int(e1.get())):
+                name = dish.name
+                order.append(dish)
+                added = 1
+                
+        if(added):
+            profit.set(name + " successfully added!")
+            i = 0
+            Lb1.delete(0,'end')
+            for dish in order:
+                Lb1.insert(1, dish.name)
+                i += 1
+        else:
+            profit.set("Sorry, dish with id " + str(e1.get()) + " is not available")
+
 
     Label(ws,
           text ="Choose id of dishes:",
@@ -106,7 +124,19 @@ def openNewWindow():
 
     e1 = Entry(ws)
     e1.pack()
-    Button(ws, text='Show', command=printtext(e1)).pack()
+    Button(ws, text='Add', command=printtext).pack()
+
+    labelProfit = tk.Label(
+        ws,
+        textvariable=profit,
+        fg="#54BAB9",
+        bg="#FBF8F1",
+        )
+    labelProfit.pack()
+
+    Lb1 = Listbox(ws)
+    Lb1.pack()
+
 
     my_game.pack()
 
