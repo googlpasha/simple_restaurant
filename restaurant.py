@@ -105,8 +105,11 @@ def openNewWindow():
     def addDish():
         added = 0
         name = ""
+        curItem = my_game.focus()
+        chousenDict = my_game.item(curItem).values()
+        chousenId = list(chousenDict)[2][0]
         for dish in menu:
-            if(dish.dishId == int(e1.get())):
+            if(dish.dishId == chousenId):
                 name = dish.name
                 order.append(dish)
                 added = 1
@@ -116,12 +119,11 @@ def openNewWindow():
             printChousenDishes()
             
         else:
-            profit.set("Sorry, dish with id " + str(e1.get()) + " is not available")
+            profit.set("Sorry, dish with id " + str(chousenId) + " is not available")
     
     def deleteDish():
         selection = Lb1.curselection()
-        print(selection)
-        Lb1.delete(selection[0])
+        Lb1.delete(selection[0]) # delete object from a list
         del order[-selection[0]] # delete this element from our order
 
 
@@ -131,8 +133,6 @@ def openNewWindow():
           bg="#FBF8F1",
         ).pack()
 
-    e1 = Entry(ws)
-    e1.pack()
     Button(ws, text='Add', command=addDish).pack()
 
     labelProfit = tk.Label(
