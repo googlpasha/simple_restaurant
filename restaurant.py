@@ -96,7 +96,13 @@ def openNewWindow():
         values=(dish.dishId,dish.name,dish.type, dish.category, dish.price))
 
     profit = tk.IntVar()
-    def printtext():
+    def printChousenDishes():
+        i = 0
+        Lb1.delete(0,'end')
+        for dish in order:
+            Lb1.insert(1, dish.name)
+            i += 1
+    def addDish():
         added = 0
         name = ""
         for dish in menu:
@@ -107,13 +113,16 @@ def openNewWindow():
                 
         if(added):
             profit.set(name + " successfully added!")
-            i = 0
-            Lb1.delete(0,'end')
-            for dish in order:
-                Lb1.insert(1, dish.name)
-                i += 1
+            printChousenDishes()
+            
         else:
             profit.set("Sorry, dish with id " + str(e1.get()) + " is not available")
+    
+    def deleteDish():
+        selection = Lb1.curselection()
+        print(selection)
+        Lb1.delete(selection[0])
+        del order[-selection[0]] # delete this element from our order
 
 
     Label(ws,
@@ -124,7 +133,7 @@ def openNewWindow():
 
     e1 = Entry(ws)
     e1.pack()
-    Button(ws, text='Add', command=printtext).pack()
+    Button(ws, text='Add', command=addDish).pack()
 
     labelProfit = tk.Label(
         ws,
@@ -136,6 +145,9 @@ def openNewWindow():
 
     Lb1 = Listbox(ws)
     Lb1.pack()
+
+    Button(ws, text='Delete', command=deleteDish).pack()
+    #Button(ws, text='Customize', command=printtext).pack()
 
 
     my_game.pack()
