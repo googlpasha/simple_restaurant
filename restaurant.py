@@ -52,9 +52,12 @@ def printMenu(menu):
         print(str(dish.dishId)+")", dish.name, "("+ dish.category +")", "-", dish.price)
  
 
-def openNewWindow():
+def openMenuWindow():
     table = tableNumber.get()
     people = People.get()
+    # save current table to all tables
+    allTables.append(Table(table, people))
+
     if((table.isnumeric()) & (people.isnumeric())):
         if ((int(table) > 0) & (int(people) > 0)):
             # Toplevel object which will
@@ -145,8 +148,11 @@ def openNewWindow():
                 if added:
                     printChousenDishes()
             
-            # def makeOrder():
-            #     mainOrder = Order()
+            def makeOrder():
+                orderId = len(allOrders)
+                mainOrder = Order(orderId, int(table), order)
+                allOrders.append(mainOrder) # save this order
+                OrderSuccess.set("Thank you for your order! Now you can close this window")
         else:
             Error.set("Something went wrong!")
     else:
@@ -186,10 +192,152 @@ def openNewWindow():
     customFeature.pack()
     Button(ws, text='Customize', command=addCustomFeature).pack()
 
-    #Button(ws, text='Make order', command=makeOrder).pack()
+    Button(
+        ws,
+        text='Make order',
+        width=15,
+        height=1,
+        command=makeOrder,
+    ).pack()
+
+    OrderSuccess = tk.IntVar()
+    OrderSuccess.set("")
+    OrderLabel = tk.Label(
+        ws,
+        textvariable=OrderSuccess,
+        fg="green",
+        bg="#F7ECDE",
+    )
+    OrderLabel.pack()
 
 
     my_game.pack()
+
+def openOrdersWindow():
+    def orderDetails():
+
+        tk.Label(
+            ws1,
+            text="id: ",
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        ).pack()
+        idVar = tk.IntVar()
+        idVar.set("")
+        idText = tk.Label(
+            ws1,
+            textvariable=idVar,
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        )
+        idText.pack()
+
+        tk.Label(
+            ws1,
+            text="Table: ",
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        ).pack()
+        tableVar = tk.IntVar()
+        tableVar.set("")
+        tableText = tk.Label(
+            ws1,
+            textvariable=tableVar,
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        )
+        tableText.pack()
+
+        tk.Label(
+            ws1,
+            text="Dishes: ",
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        ).pack()
+
+        DishesList = Listbox(ws1)
+        DishesList.pack()
+
+        tk.Label(
+            ws1,
+            text="Sum: ",
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        ).pack()
+        SumVar = tk.IntVar()
+        SumVar.set("")
+        SumText = tk.Label(
+            ws1,
+            textvariable=SumVar,
+            fg="#54BAB9",
+            bg="#FBF8F1",
+        )
+        SumText.pack()
+
+        # Set vars
+        curItem = orderTable.focus()
+        chousenDict = orderTable.item(curItem).values()
+        chousenId = list(chousenDict)[2][0]
+        idVar.set(chousenId)
+        for order in allOrders:
+            if order.id == chousenId:
+                tableVar.set(order.number)
+                dishes = order.dishes
+
+        DishesList.delete(0,'end')
+        i = 0
+        summ = 0
+        for dish in dishes:
+            DishesList.insert(1, dish.name)
+            summ += dish.price
+            i += 1
+
+        SumVar.set(summ)
+
+
+
+        
+
+    
+    ws1 = tk.Toplevel()
+    ws1.geometry("500x600")
+    ws1.configure(background='#FBF8F1')
+    ws1.title("Orders")
+
+    orderFrame = Frame(ws1)
+    orderFrame.pack()
+
+    style = ttk.Style()
+    style.configure('Treeview',
+        background="#F7ECDE",
+        foreground="#54BAB9",
+        fieldbackground="#F7ECDE")
+
+    orderTable = ttk.Treeview(orderFrame)
+    orderTable['columns'] = ('Id', 'Table')
+
+    orderTable.column("#0", width=0,  stretch=NO)
+    orderTable.column("Id",anchor=CENTER, width=80)
+    orderTable.column("Table",anchor=CENTER,width=150)
+
+    orderTable.heading("#0",text="",anchor=CENTER)
+    orderTable.heading("Id",text="Id",anchor=CENTER)
+    orderTable.heading("Table",text="Table",anchor=CENTER)
+
+    for order in allOrders:
+        orderTable.insert(parent='',index='end',iid=order.id,text='',
+        values=(order.id,order.number))
+    
+    orderTable.pack()
+
+    Button(
+        ws1,
+        text='Details',
+        width=15,
+        height=1,
+        command=orderDetails,
+    ).pack()
+    
 
 
 
@@ -199,11 +347,13 @@ def openNewWindow():
 
 
 #TEST SECTION#
+# Our main lists
 
-table1 = Table(1, 2)
-#printMenu(menu)
-order1 = table1.createOrder(0, ["soup", "pasta", "vine"])
-#print(order1.id)
+###############
+allOrders = []
+allTables = []
+###############
+
 root = tk.Tk()
 root.geometry('600x400+50+50')
 root.configure(background='#F7ECDE')
@@ -240,17 +390,26 @@ main_text = tk.Label(
     fg="#54BAB9",
     bg="#F7ECDE",
 )
-button = tk.Button(
+MenuButton = tk.Button(
     text="Menu",
     width=25,
     height=5,
     bg="#E9DAC1",
     fg="#54BAB9",
-    command = openNewWindow
+    command = openMenuWindow
+)
+OrdersButton = tk.Button(
+    text="Orders",
+    width=15,
+    height=1,
+    bg="#E9DAC1",
+    fg="#54BAB9",
+    command = openOrdersWindow
 )
 
 greeting.pack()
 main_text.pack(pady = 10)
-button.pack(pady = 10)
+MenuButton.pack(pady = 10)
+OrdersButton.pack(pady = 10)
 root.mainloop()
 
