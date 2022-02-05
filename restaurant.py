@@ -13,12 +13,13 @@ class Order():
         self.payed = False
 
 class Dish():
-    def __init__(self, dishId, name, type, category, price):
+    def __init__(self, dishId, name, type, category, price, customFeatures):
         self.dishId = dishId
         self.name = name
         self.type = type
         self.category = category
         self.price = price
+        self.customFeatures = customFeatures
 
 class Table():
     def __init__(self, number, people):
@@ -37,7 +38,7 @@ def createMenu(menue_file):
         header = next(csvfile)
         i = 0
         for row in spamreader:
-            dish = Dish(i, row[0], row[1], row[2], row[3])
+            dish = Dish(i, row[0], row[1], row[2], float(row[3].replace(',', '.')), [])
             menu.append(dish)
             i += 1
         return menu
@@ -56,7 +57,7 @@ def openNewWindow():
     # be treated as a new window
     order = [] # list of all dishes which customer chooses
     ws = tk.Toplevel()
-    ws.geometry("500x500")
+    ws.geometry("500x600")
     ws.configure(background='#FBF8F1')
     ws.title("Menu")
 
@@ -126,6 +127,20 @@ def openNewWindow():
         Lb1.delete(selection[0]) # delete object from a list
         del order[-selection[0]] # delete this element from our order
 
+    def addCustomFeature():
+        curItem = my_game.focus()
+        chousenDict = my_game.item(curItem).values()
+        chousenId = list(chousenDict)[2][0]
+        added = 0
+        for dish in menu:
+            if(dish.dishId == chousenId):
+                dish.name = dish.name + " *"
+                dish.price += 1
+                dish.customFeatures.append(str(customFeature.get()))
+                added = 1
+        if added:
+            printChousenDishes()
+
 
     Label(ws,
           text ="Choose id of dishes:",
@@ -147,7 +162,17 @@ def openNewWindow():
     Lb1.pack()
 
     Button(ws, text='Delete', command=deleteDish).pack()
-    #Button(ws, text='Customize', command=printtext).pack()
+
+    CustomFeatureText = tk.Label(
+        ws,
+        text="Custom feature: ",
+        fg="#54BAB9",
+        bg="#FBF8F1",
+        ).pack()
+
+    customFeature = Entry(ws)
+    customFeature.pack()
+    Button(ws, text='Customize', command=addCustomFeature).pack()
 
 
     my_game.pack()
