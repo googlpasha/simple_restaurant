@@ -1,41 +1,50 @@
+"""
+Eine Graphische Applikation um Bestellungen für ein Restaurant einzugeben und abzurufen.
+"""
 import csv
 import tkinter as tk
-from tkinter import ttk
-from tkinter import *
+from tkinter import ttk, CENTER, NO, Frame, Label, Button, Listbox, Entry
 
-__author__ = "7775152, Usatenko"
+__author__ = "7775152, Usatenko, 7762091, Kanja"
 
 class Order():
-    def __init__(self, id, number, dishes, payed = False):
-        self.id = id
+    """Die Klasse für eine Bestellung, mit den verschiedenen dingen die dort gespeichert werden."""
+    def __init__(self, dishid, number, dishes):
+        self.dishid = dishid
         self.number = number
         self.dishes = dishes
         self.payed = False
 
 class Dish():
-    def __init__(self, dishId, name, type, category, price, customFeatures):
-        self.dishId = dishId
+    """Klases für ein Gericht, auch nur mit den eingelesenen Variablen."""
+    def __init__(self, dishid, name, dtype, category, price, customfeatures):
+        self.dishid = dishid
         self.name = name
-        self.type = type
+        self.dtype = dtype
         self.category = category
         self.price = price
-        self.customFeatures = customFeatures
+        self.customfeatures = customfeatures
 
 class Table():
+    """Die verschiedenen Tische mit Nummer und Leuten,
+     dort können dann Bestellungen aufgenommen werden."""
     def __init__(self, number, people):
         self.number = number
         self.people = people
 
-    def createOrder(self, id, dishes):
+    def createorder(self, dishid, dishes):
+        """An einem Tisch können Bestellungen aufgenommen werden,
+         diese werden unten weiter definiert."""
         print("Menu:")
-        order = Order(id, self.number, dishes, payed = False)
+        order = Order(dishid, self.number, dishes)
         return order
 
-def createMenu(menue_file):
+def createmenu(menue_file):
+    """Das Menü mit den verschiedenen Gerichten, wird aus einer Datei eingelesen."""
     menu = []
-    with open(menue_file, newline='') as csvfile:
+    with open(menue_file, newline='', encoding="utf-8") as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
-        header = next(csvfile)
+        next(csvfile)
         i = 0
         for row in spamreader:
             dish = Dish(i, row[0], row[1], row[2], float(row[3].replace(',', '.')), [])
@@ -43,23 +52,26 @@ def createMenu(menue_file):
             i += 1
         return menu
 
-def printMenu(menu):
-    dishType = ""
+def printmenu(menu):
+    """Darstellung des Menüs das oben erstellt wurde."""
+    dishtype = ""
     for dish in menu:
-        if(dish.type != dishType):
-            print("#"*10, dish.type, "#"*10)
-            dishType = dish.type
-        print(str(dish.dishId)+")", dish.name, "("+ dish.category +")", "-", dish.price)
- 
+        if dish.dtype != dishtype:
+            print("#"*10, dish.dtype, "#"*10)
+            dishtype = dish.dtype
+        print(str(dish.dishid)+")", dish.name, "("+ dish.category +")", "-", dish.price)
 
-def openMenuWindow():
-    table = tableNumber.get()
+
+def openmenuwindow():
+    """Die Hauptfunktion um vor allem die Graphischen Elemente vorzugeben
+    und alles genauer zu beschreiben."""
+    table = tablenumber.get()
     people = People.get()
     # save current table to all tables
-    allTables.append(Table(table, people))
+    allables.append(Table(table, people))
 
-    if((table.isnumeric()) & (people.isnumeric())):
-        if ((int(table) > 0) & (int(people) > 0)):
+    if (table.isnumeric()) & (people.isnumeric()):
+        if (int(table) > 0) & (int(people) > 0):
             # Toplevel object which will
             # be treated as a new window
             order = [] # list of all dishes which customer chooses
@@ -97,68 +109,76 @@ def openMenuWindow():
             my_game.heading("Price",text="Price",anchor=CENTER)
 
 
-            
-            menu = createMenu('food.csv') # main list of all dishes
+
+            menu = createmenu('food.csv') # main list of all dishes
             for dish in menu:
-                my_game.insert(parent='',index='end',iid=dish.dishId,text='',
-                values=(dish.dishId,dish.name,dish.type, dish.category, dish.price))
+                my_game.insert(parent='',index='end',iid=dish.dishid,text='',
+                values=(dish.dishid,dish.name,dish.dtype, dish.category, dish.price))
 
             profit = tk.IntVar()
-            def printChousenDishes():
+            def printchousendishes():
+                """Anzeigen der Gerichte"""
                 i = 0
-                Lb1.delete(0,'end')
+                lb1.delete(0,'end')
                 for dish in order:
-                    Lb1.insert(1, dish.name)
+                    lb1.insert(1, dish.name)
                     i += 1
-            def addDish():
+            def adddish():
+                """Diese Funktion ist für das hinzufügen eines Gerichtes
+                zur Bestellung zuständig."""
                 added = 0
                 name = ""
-                curItem = my_game.focus()
-                chousenDict = my_game.item(curItem).values()
-                chousenId = list(chousenDict)[2][0]
+                curitem = my_game.focus()
+                chousendict = my_game.item(curitem).values()
+                chousenid = list(chousendict)[2][0]
                 for dish in menu:
-                    if(dish.dishId == chousenId):
+                    if dish.dishid == chousenid:
                         name = dish.name
                         order.append(dish)
                         added = 1
-                        
-                if(added):
+
+                if added:
                     profit.set(name + " successfully added!")
-                    printChousenDishes()
-                    
+                    printchousendishes()
+
                 else:
-                    profit.set("Sorry, dish with id " + str(chousenId) + " is not available")
-            
-            def deleteDish():
-                selection = Lb1.curselection()
-                Lb1.delete(selection[0]) # delete object from a list
+                    profit.set("Sorry, dish with dishid " + str(chousenid) + " is not available")
+
+            def deletedish():
+                """Wenn etwas ausgewählt wurde, kann es mit dieser Funktion
+                von der Bestellung entfernt werden."""
+                selection = lb1.curselection()
+                lb1.delete(selection[0]) # delete object from a list
                 del order[-selection[0]] # delete this element from our order
 
-            def addCustomFeature():
-                curItem = my_game.focus()
-                chousenDict = my_game.item(curItem).values()
-                chousenId = list(chousenDict)[2][0]
+            def addcustomfeature():
+                """Funktion für extra Wünsche"""
+                curitem = my_game.focus()
+                chousendict = my_game.item(curitem).values()
+                chousenid = list(chousendict)[2][0]
                 added = 0
                 for dish in menu:
-                    if(dish.dishId == chousenId):
+                    if dish.dishid == chousenid:
                         dish.name = dish.name + " *"
                         dish.price += 1
-                        dish.customFeatures.append(str(customFeature.get()))
+                        dish.customfeatures.append(str(customfeature.get()))
                         added = 1
                 if added:
-                    printChousenDishes()
-            
-            def makeOrder():
-                orderId = len(allOrders)
-                mainOrder = Order(orderId, int(table), order)
-                allOrders.append(mainOrder) # save this order
-                OrderSuccess.set("Thank you for your order! Now you can close this window")
+                    printchousendishes()
+
+            def makeorder():
+                """Wenn die Bestellung fertig ist, kann sie hiermit
+                zur allgemeinen Bestellliste hinzugefügt werden."""
+                orderid = len(allorders)
+                mainorder = Order(orderid, int(table), order)
+                allorders.append(mainorder) # save this order
+                ordersuccess.set("Thank you for your order! Now you can close this window")
         else:
             Error.set("Something went wrong!")
     else:
         Error.set("Something went wrong!")
 
-
+    #Specifies looks of Buttons and Text
 
     Label(ws,
           text ="Choose id of dishes:",
@@ -166,55 +186,51 @@ def openMenuWindow():
           bg="#FBF8F1",
         ).pack()
 
-    Button(ws, text='Add', command=addDish).pack()
+    Button(ws, text='Add', command=adddish).pack()
 
-    labelProfit = tk.Label(
+    labelprofit = tk.Label(
         ws,
         textvariable=profit,
         fg="#54BAB9",
         bg="#FBF8F1",
         )
-    labelProfit.pack()
+    labelprofit.pack()
 
-    Lb1 = Listbox(ws)
-    Lb1.pack()
+    lb1 = Listbox(ws)
+    lb1.pack()
 
-    Button(ws, text='Delete', command=deleteDish).pack()
+    Button(ws, text='Delete', command=deletedish).pack()
 
-    CustomFeatureText = tk.Label(
-        ws,
-        text="Custom feature: ",
-        fg="#54BAB9",
-        bg="#FBF8F1",
-        ).pack()
-
-    customFeature = Entry(ws)
-    customFeature.pack()
-    Button(ws, text='Customize', command=addCustomFeature).pack()
+    customfeature = Entry(ws)
+    customfeature.pack()
+    Button(ws, text='Customize', command=addcustomfeature).pack()
 
     Button(
         ws,
         text='Make order',
         width=15,
         height=1,
-        command=makeOrder,
+        command=makeorder,
     ).pack()
 
-    OrderSuccess = tk.IntVar()
-    OrderSuccess.set("")
-    OrderLabel = tk.Label(
+    ordersuccess = tk.IntVar()
+    ordersuccess.set("")
+    orderlabel = tk.Label(
         ws,
-        textvariable=OrderSuccess,
+        textvariable=ordersuccess,
         fg="green",
         bg="#F7ECDE",
     )
-    OrderLabel.pack()
+    orderlabel.pack()
 
 
     my_game.pack()
 
-def openOrdersWindow():
-    def orderDetails():
+def openorderswindow():
+    """Anzeigen von der Liste aller Bestellungen und Funktionen dieser"""
+    def orderdetails():
+        """Zeigt die verschiedenen Bestellungen an und definiert wie das Fenster und alles darin
+        auszusehen hat."""
 
         tk.Label(
             ws1,
@@ -222,15 +238,15 @@ def openOrdersWindow():
             fg="#54BAB9",
             bg="#FBF8F1",
         ).pack()
-        idVar = tk.IntVar()
-        idVar.set("")
-        idText = tk.Label(
+        idvar = tk.IntVar()
+        idvar.set("")
+        idtext = tk.Label(
             ws1,
-            textvariable=idVar,
+            textvariable=idvar,
             fg="#54BAB9",
             bg="#FBF8F1",
         )
-        idText.pack()
+        idtext.pack()
 
         tk.Label(
             ws1,
@@ -238,15 +254,15 @@ def openOrdersWindow():
             fg="#54BAB9",
             bg="#FBF8F1",
         ).pack()
-        tableVar = tk.IntVar()
-        tableVar.set("")
-        tableText = tk.Label(
+        tablevar = tk.IntVar()
+        tablevar.set("")
+        tabletext = tk.Label(
             ws1,
-            textvariable=tableVar,
+            textvariable=tablevar,
             fg="#54BAB9",
             bg="#FBF8F1",
         )
-        tableText.pack()
+        tabletext.pack()
 
         tk.Label(
             ws1,
@@ -255,8 +271,8 @@ def openOrdersWindow():
             bg="#FBF8F1",
         ).pack()
 
-        DishesList = Listbox(ws1)
-        DishesList.pack()
+        disheslist = Listbox(ws1)
+        disheslist.pack()
 
         tk.Label(
             ws1,
@@ -264,48 +280,48 @@ def openOrdersWindow():
             fg="#54BAB9",
             bg="#FBF8F1",
         ).pack()
-        SumVar = tk.IntVar()
-        SumVar.set("")
-        SumText = tk.Label(
+        sumvar = tk.IntVar()
+        sumvar.set("")
+        sumtext = tk.Label(
             ws1,
-            textvariable=SumVar,
+            textvariable=sumvar,
             fg="#54BAB9",
             bg="#FBF8F1",
         )
-        SumText.pack()
+        sumtext.pack()
 
         # Set vars
-        curItem = orderTable.focus()
-        chousenDict = orderTable.item(curItem).values()
-        chousenId = list(chousenDict)[2][0]
-        idVar.set(chousenId)
-        for order in allOrders:
-            if order.id == chousenId:
-                tableVar.set(order.number)
+        curitem = ordertable.focus()
+        chousendict = ordertable.item(curitem).values()
+        chousenid = list(chousendict)[2][0]
+        idvar.set(chousenid)
+        for order in allorders:
+            if order.dishid == chousenid:
+                tablevar.set(order.number)
                 dishes = order.dishes
 
-        DishesList.delete(0,'end')
+        disheslist.delete(0,'end')
         i = 0
         summ = 0
         for dish in dishes:
-            DishesList.insert(1, dish.name)
+            disheslist.insert(1, dish.name)
             summ += dish.price
             i += 1
 
-        SumVar.set(summ)
+        sumvar.set(summ)
 
 
 
-        
 
-    
+
+
     ws1 = tk.Toplevel()
     ws1.geometry("500x600")
     ws1.configure(background='#FBF8F1')
     ws1.title("Orders")
 
-    orderFrame = Frame(ws1)
-    orderFrame.pack()
+    orderframe = Frame(ws1)
+    orderframe.pack()
 
     style = ttk.Style()
     style.configure('Treeview',
@@ -313,36 +329,36 @@ def openOrdersWindow():
         foreground="#54BAB9",
         fieldbackground="#F7ECDE")
 
-    orderTable = ttk.Treeview(orderFrame)
-    orderTable['columns'] = ('Id', 'Table')
+    ordertable = ttk.Treeview(orderframe)
+    ordertable['columns'] = ('Id', 'Table')
 
-    orderTable.column("#0", width=0,  stretch=NO)
-    orderTable.column("Id",anchor=CENTER, width=80)
-    orderTable.column("Table",anchor=CENTER,width=150)
+    ordertable.column("#0", width=0,  stretch=NO)
+    ordertable.column("Id",anchor=CENTER, width=80)
+    ordertable.column("Table",anchor=CENTER,width=150)
 
-    orderTable.heading("#0",text="",anchor=CENTER)
-    orderTable.heading("Id",text="Id",anchor=CENTER)
-    orderTable.heading("Table",text="Table",anchor=CENTER)
+    ordertable.heading("#0",text="",anchor=CENTER)
+    ordertable.heading("Id",text="Id",anchor=CENTER)
+    ordertable.heading("Table",text="Table",anchor=CENTER)
 
-    for order in allOrders:
-        orderTable.insert(parent='',index='end',iid=order.id,text='',
-        values=(order.id,order.number))
-    
-    orderTable.pack()
+    for order in allorders:
+        ordertable.insert(parent='',index='end',iid=order.dishid,text='',
+        values=(order.dishid,order.number))
+
+    ordertable.pack()
 
     Button(
         ws1,
         text='Details',
         width=15,
         height=1,
-        command=orderDetails,
+        command=orderdetails,
     ).pack()
-    
+
 
 
 
 # Define all dishes
-#menu = createMenu('food.csv') # main list of all dishes
+#menu = createmenu('food.csv') # main list of all dishes
 
 
 
@@ -350,8 +366,8 @@ def openOrdersWindow():
 # Our main lists
 
 ###############
-allOrders = []
-allTables = []
+allorders = []
+allables = []
 ###############
 
 root = tk.Tk()
@@ -362,14 +378,14 @@ greeting = tk.Label(
     fg="#54BAB9",
     bg="#F7ECDE",
 )
-tableText = tk.Label(
+tabletext = tk.Label(
     text="Table: ",
     fg="#54BAB9",
     bg="#F7ECDE",
 ).pack()
-tableNumber = Entry(root)
-tableNumber.pack()
-peopleText = tk.Label(
+tablenumber = Entry(root)
+tablenumber.pack()
+PEOPLETEXT = tk.Label(
     text="People: ",
     fg="#54BAB9",
     bg="#F7ECDE",
@@ -378,38 +394,37 @@ People = Entry(root)
 People.pack()
 Error = tk.IntVar()
 Error.set("")
-labelError = tk.Label(
+labelerror = tk.Label(
         root,
         textvariable=Error,
         fg="red",
         bg="#F7ECDE",
     )
-labelError.pack()
+labelerror.pack()
 main_text = tk.Label(
     text="We are happy to see you! Take a look at our Menu!",
     fg="#54BAB9",
     bg="#F7ECDE",
 )
-MenuButton = tk.Button(
+menubutton = tk.Button(
     text="Menu",
     width=25,
     height=5,
     bg="#E9DAC1",
     fg="#54BAB9",
-    command = openMenuWindow
+    command = openmenuwindow
 )
-OrdersButton = tk.Button(
+ordersbutton = tk.Button(
     text="Orders",
     width=15,
     height=1,
     bg="#E9DAC1",
     fg="#54BAB9",
-    command = openOrdersWindow
+    command = openorderswindow
 )
 
 greeting.pack()
 main_text.pack(pady = 10)
-MenuButton.pack(pady = 10)
-OrdersButton.pack(pady = 10)
+menubutton.pack(pady = 10)
+ordersbutton.pack(pady = 10)
 root.mainloop()
-
