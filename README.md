@@ -29,7 +29,7 @@ Funktionen für Gerichte hinzufügen und wieder löschen, genauso wie Gerichte v
 werden die Error anzeigen erstellt, wenn z.B. ein Tisch erstellt werden soll aber keine Tischnummer
 oder Personenanzahl beschrieben wurde.
 
-![alt text](https://github.com/googlpasha/simple_restaurant/tree/main/UMLDiagramm.png?raw=true)
+![alt text](https://github.com/googlpasha/simple_restaurant/blob/main/UMLDiagramm.PNG)
 
 Dieses *UML Diagramm* haben wir uns als Grundstruktur erstellt, um einmal zu überlegen wie am
 Ende das Programm aufgebaut sein soll und mit was für Klassen wir arbeiten.
